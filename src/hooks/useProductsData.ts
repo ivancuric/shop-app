@@ -13,18 +13,12 @@ export const useProductsData = () => {
   const [error, setError] = useState<Error | null>(null);
 
   const loadData = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
     try {
       const result = await fetchProducts(PRODUCTS_TO_LOAD);
-      setProducts(result);
     } catch (err) {
-      setError(
-        err instanceof Error ? err : new Error("An unknown error occurred")
-      );
-      setProducts([]); // Clear products on error
+      // todo: handle error
     } finally {
-      setIsLoading(false);
+      // todo: handle finally
     }
   }, []);
 
