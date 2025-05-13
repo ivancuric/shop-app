@@ -1,35 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import { ProductDetailModal } from "./components/ProductDetailModal";
+import { ProductGridItem } from "./components/ProductGridItem";
+import { useProductsData } from "./hooks/useProductsData";
+import type { Product } from "./types";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { products, isLoading, error, refetch } = useProductsData();
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const handleSelectProduct = (product: Product) => {
+    setSelectedProduct(product);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedProduct(null);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
+    <div>
+      <h1>Products</h1>
+      {isLoading && products.length === 0 && <p>Loading products...</p>}
+      {isLoading && products.length > 0 && <p>Refreshing products...</p>}
+      {error && (
+        <p style={{ color: "red" }}>
+          Error: {error.message}{" "}
+          <button onClick={refetch} disabled={isLoading}>
+            Try Again
+          </button>
         </p>
+      )}
+      {!isLoading && !error && products.length === 0 && (
+        <p>No products found.</p>
+      )}
+
+      {/* Product Grid */}
+      <div>
+        {products.map((product, i) => (
+          <ProductGridItem
+            key={i}
+            product={product}
+            onSelectProduct={handleSelectProduct}
+          />
+        ))}
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+
+      {/* The Modal */}
+      <ProductDetailModal
+        product={selectedProduct}
+        onClose={handleCloseModal}
+      />
+    </div>
+  );
 }
 
-export default App
+export default App;
